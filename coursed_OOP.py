@@ -8,7 +8,6 @@ import time
 config = configparser.ConfigParser()
 config.read("settings.ini")
 
-user_id_vk = config.get('vk', 'user_id')
 token_vk = config.get('vk', 'token_VK')
 token_ya = config.get('YANDEX', 'token_ya')
 
@@ -63,8 +62,7 @@ class YA_API:
     def __init__(self, vk_token, vk_user_id, ya_token, folder_name):
         self.token = ya_token
         self.folder_name = folder_name
-        self.vk_api = VK_API(token=vk_token, user_id=vk_user_id)
-
+        self.vk_api = VK_API(token=vk_token)
 
     def get_common_params(self):
         return {
@@ -120,7 +118,25 @@ class YA_API:
             json.dump(photos, f)
 
 
-user = YA_API(token_vk, user_id_vk, token_ya)
-user.create_new_folder()
-user.upload_photos(4)
-user.create_json()
+if __name__ == "__main__":
+    user_id_vk = config.get('vk', 'user_id')
+    token_vk = config.get('vk', 'token_VK')
+
+    # Создаем экземпляр класса VK_API
+    vk_api = VK_API(token_vk)
+
+    # Получаем информацию о фотографиях из VK
+    photos_info = vk_api.get_photo_info(user_id_vk)
+
+    # Создаем экземпляр класса YA_API
+    folder_name = input("Введите имя папки на Яндекс.Диске: ")
+    ya_api = YA_API(token_vk, user_id_vk, token_ya, folder_name)
+
+    # Создаем новую папку на Яндекс.Диске
+    ya_api.create_new_folder()
+
+    # Загружаем фотографии на Яндекс.Диск
+    ya_api.upload_photos()
+
+    # Создаем JSON файл с информацией о загруженных фотографиях
+    ya_api.create_json()
