@@ -16,20 +16,19 @@ token_ya = config.get('YANDEX', 'token_ya')
 class VK_API:
     API_BASE_URL = 'https://api.vk.ru/method'
 
-    def __init__(self, token, user_id):
+    def __init__(self, token):
         self.token = token
-        self.user_id = user_id
 
-    def get_common_params(self):
+    def get_common_params(self, user_id):
         return {
-            'user_id': user_id_vk,
+            'user_id': user_id,
             'extended': 1,
             'access_token': token_vk,
             'v': '5.199'
         }
 
-    def get_photo_info(self):
-        params = self.get_common_params()
+    def get_photo_info(self, user_id):
+        params = self.get_common_params(user_id)
         params.update({'album_id': 'profile'})
         response = requests.get(f'{self.API_BASE_URL}/photos.get', params=params)
         profile_photo_info = response.json()  # json-файл с информацией о фотографии профиля
@@ -61,14 +60,15 @@ class YA_API:
         'Authorization': token_ya
     }
 
-    def __init__(self, vk_token, vk_user_id, ya_token):
+    def __init__(self, vk_token, vk_user_id, ya_token, folder_name):
         self.token = ya_token
+        self.folder_name = folder_name
         self.vk_api = VK_API(token=vk_token, user_id=vk_user_id)
 
-    @staticmethod
-    def get_common_params():
+
+    def get_common_params(self):
         return {
-            'path': 'Photos',
+            'path': self.folder_name,
         }
 
     def create_new_folder(self):
